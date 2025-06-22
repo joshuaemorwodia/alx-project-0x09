@@ -1,4 +1,5 @@
 // pages/index.tsx
+
 import ImageCard from "@/components/common/ImageCard";
 import { ImageProps } from "@/interfaces";
 import { useState } from "react";
@@ -10,17 +11,24 @@ const Home: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleGenerateImage = async () => {
+    if (!prompt.trim()) return;
+
     setIsLoading(true);
 
-    // Simulate image generation (mock)
+    // Simulate image generation API with a placeholder image
     setTimeout(() => {
-      const fakeImage = {
-        imageUrl: "https://placekitten.com/400/300", // replace with real URL later
+      const newImageUrl = `https://via.placeholder.com/600x400.png?text=${encodeURIComponent(prompt)}`;
+
+      // Update the image URL shown above the input field
+      setImageUrl(newImageUrl);
+
+      // Add the new image to the gallery below
+      const newImage: ImageProps = {
         prompt,
+        imageUrl: newImageUrl,
       };
 
-      setGeneratedImages([fakeImage, ...generatedImages]);
-      setImageUrl(fakeImage.imageUrl);
+      setGeneratedImages((prevImages) => [newImage, ...prevImages]);
       setIsLoading(false);
     }, 2000);
   };
@@ -43,25 +51,42 @@ const Home: React.FC = () => {
           />
           <button
             onClick={handleGenerateImage}
-            className="w-full p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
             disabled={isLoading}
+            className={`w-full p-3 text-white rounded-lg transition duration-200 ${
+              isLoading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+            }`}
           >
-            {isLoading ? "Loading..." : "Generate Image"}
+            {isLoading ? "Generating..." : "Generate Image"}
           </button>
         </div>
 
-        {generatedImages.length > 0 &&
-          generatedImages.map((img, index) => (
-            <ImageCard
-              key={index}
-              imageUrl={img.imageUrl}
-              prompt={img.prompt}
-              action={(imgPath) => setImageUrl(imgPath)}
-            />
-          ))}
+        {/* Display the latest generated image */}
+        {imageUrl && (
+          <ImageCard
+            imageUrl={imageUrl}
+            prompt={prompt}
+            action={() => setImageUrl(imageUrl)}
+          />
+        )}
+
+        {/* Display all previous generated images */}
+        {generatedImages.length > 0 && (
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {generatedImages.map((img, index) => (
+              <ImageCard
+                key={index}
+                imageUrl={img.imageUrl}
+                prompt={img.prompt}
+                action={() => setImageUrl(img.imageUrl)}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
 export default Home;
+
+
