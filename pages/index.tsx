@@ -11,26 +11,8 @@ const Home: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleGenerateImage = async () => {
-    if (!prompt.trim()) return;
-
-    setIsLoading(true);
-
-    // Simulate image generation API with a placeholder image
-    setTimeout(() => {
-      const newImageUrl = `https://via.placeholder.com/600x400.png?text=${encodeURIComponent(prompt)}`;
-
-      // Update the image URL shown above the input field
-      setImageUrl(newImageUrl);
-
-      // Add the new image to the gallery below
-      const newImage: ImageProps = {
-        prompt,
-        imageUrl: newImageUrl,
-      };
-
-      setGeneratedImages((prevImages) => [newImage, ...prevImages]);
-      setIsLoading(false);
-    }, 2000);
+    console.log("Generating Image");
+    console.log(process.env.NEXT_PUBLIC_GPT_API_KEY);
   };
 
   return (
@@ -88,5 +70,3 @@ const Home: React.FC = () => {
 };
 
 export default Home;
-
-
