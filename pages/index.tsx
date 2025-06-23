@@ -1,31 +1,30 @@
 import ImageCard from "@/components/common/ImageCard";
+import { ImageProps } from "@/interfaces";
 import React, { useState } from "react";
 
 const Home: React.FC = () => {
   const [prompt, setPrompt] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [generatedImages, setGeneratedImages] = useState<ImageProps[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleGenerateImage = async () => {
     setIsLoading(true);
     const resp = await fetch('/api/generate-image', {
       method: 'POST',
-      body: JSON.stringify({
-        prompt
-      }),
-      headers: {
-        'Content-type': 'application/json'
-      }
-    })
+      body: JSON.stringify({ prompt }),
+      headers: { 'Content-type': 'application/json' }
+    });
 
     if (!resp.ok) {
-      setIsLoading(false)
+      setIsLoading(false);
       return;
     }
 
-    const data = await resp.json()
-    setImageUrl(data.message)
-    setIsLoading(false)
+    const data = await resp.json();
+    setIsLoading(false);
+    setImageUrl(data?.message);
+    setGeneratedImages(prev => [...prev, { imageUrl: data?.message, prompt }]);
   };
 
   return (
@@ -54,12 +53,30 @@ const Home: React.FC = () => {
 
         {imageUrl && (
           <ImageCard
-            action={() => setImageUrl("")}
+            action={() => setImageUrl(imageUrl)}
             imageUrl={imageUrl}
             prompt={prompt}
           />
         )}
       </div>
+
+      {generatedImages.length > 0 && (
+        <div className="mt-6 w-full">
+          <h3 className="text-xl text-center mb-4">Generated Images</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 border max-w-full md:max-w-[1100px] p-2 overflow-y-scroll h-96">
+            {generatedImages.map(({ imageUrl, prompt }: ImageProps, index) => (
+              <ImageCard
+                action={() => setImageUrl(imageUrl)}
+                imageUrl={imageUrl}
+                prompt={prompt}
+                key={index}
+                width="w-full"
+                height="h-40"
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
